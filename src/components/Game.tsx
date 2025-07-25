@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
@@ -16,6 +15,11 @@ const Game = () => {
   const [stepNumber, setStepNumber] = useState(0);
   const [lastMove, setLastMove] = useState<[number, number] | null>(null);
   const [winningCells, setWinningCells] = useState<number[][]>([]);
+
+  const clickSound =
+    typeof window !== "undefined" ? new Audio("/Click.wav") : null;
+  const winSound = typeof window !== "undefined" ? new Audio("/win.wav") : null;
+  const tieSound = typeof window !== "undefined" ? new Audio("/Tie.wav") : null;
 
   useEffect(() => {
     console.log("current player now:", currentPlayer);
@@ -113,6 +117,8 @@ const Game = () => {
   };
 
   const handleClick = (row: number, col: number) => {
+
+
     if (box[row][col] !== "" || winner) return;
     const newBox = box.map((row) => [...row]);
     newBox[row][col] = currentPlayer;
@@ -128,11 +134,14 @@ const Game = () => {
     if (winnigCom) {
       setWinner(currentPlayer);
       setWinningCells(winnigCom);
+      if (winSound) winSound.play();
     } else if (newBox.every((row) => row.every((ele) => ele !== ""))) {
       setWinner("Tie");
+      if (tieSound) tieSound.play();
     } else {
       setCurrentPlayer(currentPlayer === "O" ? "X" : "O");
     }
+    if (clickSound) clickSound.play();
   };
 
   const checkGameWinner = (currentPlayer: string, newBox: string[][]) => {
@@ -158,7 +167,9 @@ const Game = () => {
   };
   return (
     <div className="flex flex-col items-center gap-4 mt-10">
-      <h1 className="text-3xl font-bold text-amber-900 dark:text-amber-500 py-3">Tic Tac Toe</h1>
+      <h1 className="text-3xl font-bold text-amber-900 dark:text-amber-500 py-3">
+        Tic Tac Toe
+      </h1>
 
       {size ? (
         <>
@@ -177,11 +188,20 @@ const Game = () => {
                       key={col}
                       onClick={() => handleClick(row, col)}
                       className={`w-20 h-20 border dark:border-[#c5b8b8] border-black flex items-center justify-center text-4xl transition
-                     ${isLastMove && !isWinningCell ? "bg-[#dedfe0] dark:bg-[#363636]" : ""}
-                       ${isWinningCell ? "bg-[#fddbdb] dark:bg-[#3b565f]" : ""}`}
+                     ${isLastMove && !isWinningCell
+                          ? "bg-[#dedfe0] dark:bg-[#363636]"
+                          : ""
+                        }
+                       ${isWinningCell ? "bg-[#fddbdb] dark:bg-[#3b565f]" : ""
+                        }`}
                     >
                       {box[row][col] === "X" && (
-                        <svg className="text-[#A4C454]" width="50" height="50" viewBox="0 0 50 50">
+                        <svg
+                          className="text-[#A4C454]"
+                          width="50"
+                          height="50"
+                          viewBox="0 0 50 50"
+                        >
                           <motion.path
                             d="M10 10 L40 40 M40 10 L10 40"
                             stroke="currentColor"
@@ -198,7 +218,12 @@ const Game = () => {
                       )}
 
                       {box[row][col] === "O" && (
-                        <svg className="text-[#F28F32]" width="50" height="50" viewBox="0 0 50 50">
+                        <svg
+                          className="text-[#F28F32]"
+                          width="50"
+                          height="50"
+                          viewBox="0 0 50 50"
+                        >
                           <motion.circle
                             cx="25"
                             cy="25"
@@ -241,7 +266,7 @@ const Game = () => {
       )}
 
       {winner && (
-        <div className="text-xl font-semibold">
+        <div className="text-4xl font-semibold dark:text-[#a07affd8] text-[#60499b]">
           {winner === "Tie" ? "It's a Tie!" : `Winner: ${winner}`}
         </div>
       )}
@@ -292,69 +317,8 @@ const Game = () => {
           </motion.button>
         )}
       </div>
-
-      {/* {!winner && size && (
-        <button
-          onClick={undoGame}
-          className="mt-2 text-xl bg-orange-400 text-black px-3 py-1 rounded"
-        >
-          undo step
-        </button>
-      )} */}
-
-      {/* {size && (
-        <button
-          onClick={resetGame}
-          className="mt-2 mb-8 text-xl bg-green-700 text-white px-3.5 py-1.5 rounded"
-        >
-          Reset Game
-        </button>
-      )} */}
     </div>
   );
 };
 
 export default Game;
-
-//  <motion.div
-//                         key={col}
-//                         onClick={() => handleClick(row, col)}
-//                         initial={{ scale: 1 }}
-//                         animate={
-//                           isWinningCell
-//                             ? {
-//                                 backgroundColor: [
-//                                   "#16a34a",
-//                                   "#22c55e",
-//                                   "#16a34a",
-//                                 ],
-//                                 scale: [1, 1.05, 1],
-//                               }
-//                             : isLastMove
-//                             ? {
-//                                 boxShadow: [
-//                                   "0 0 0px rgba(250,204,21,0)",
-//                                   "0 0 15px rgba(250,204,21,0.9)",
-//                                   "0 0 0px rgba(250,204,21,0)",
-//                                 ],
-//                                 scale: [1, 1.15, 1],
-//                               }
-//                             : {}
-//                         }
-//                         transition={{
-//                           duration: isWinningCell ? 1.2 : 0.6,
-//                           repeat: isWinningCell ? Infinity : 0,
-//                           ease: "easeInOut",
-//                         }}
-//                         className={`
-//             w-20 h-20 border border-gray-500 flex items-center justify-center text-4xl cursor-pointer
-//             bg-white dark:bg-gray-800
-//             ${
-//               isWinningCell
-//                 ? "text-white font-bold"
-//                 : "text-gray-900 dark:text-gray-100"
-//             }
-//           `}
-//                       >
-//                         {box[row][col]}
-//                       </motion.div>
